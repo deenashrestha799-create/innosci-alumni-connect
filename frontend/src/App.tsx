@@ -7,7 +7,8 @@ export type Page =
   | "directory"
   | "mentorship"
   | "jobs"
-  | "admin";
+  | "admin"
+  | "career";
 
 export type Alumni = {
   name: string;
@@ -29,13 +30,14 @@ import { HomePage } from "./HomePage";
 import { PublicHeader } from "./PublicHeader";
 import { DirectoryPage } from "./DirectoryPage";
 import { JobsPage } from "./JobPage";
+import CareerAssistant from "./features/career/CareerAssistant";
 
 function Footer() {
   return <footer className="bg-navy-950 px-5 py-12 text-slate-400"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-center"><div><Logo /><p className="mt-4 max-w-sm text-xs leading-5">Connecting InnoSCI graduates to people, ideas and possibilities that last a lifetime.</p></div><div className="flex flex-wrap gap-6 text-xs font-semibold"><span>Community guidelines</span><span>Privacy</span><span>Help centre</span><span>© 2025 InnoSCI</span></div></div></footer>;
 }
 
 export default function App() {
-  const [page, setPageState] = useState<Page>("home");
+  const [page, setPageState] = useState<Page>("career");
   const setPage = (next: Page) => {
     setPageState(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -51,6 +53,7 @@ export default function App() {
       {page === "mentorship" && <MentorshipPage setPage={setPage} />}
       {page === "jobs" && <JobsPage setPage={setPage} />}
       {page === "admin" && <AdminPage setPage={setPage} />}
+      {page === "career" && <CareerAssistant setPage={setPage} />}
     </div>
   );
 }

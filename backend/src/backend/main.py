@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Depends, Query
 from backend.schemas import UserUpdate
 from backend import services
-
+from backend.career.router import router as career_router
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from backend.schemas import (
     UserCreate,
     UserResponse,
@@ -14,11 +16,23 @@ from backend.auth import (
     require_admin
 )
 
+""" from backend.career.router import router as career_router """
+
 
 app = FastAPI()
 
-
+app.include_router(career_router)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
+
 def home():
     return {
         "message": "Innosci Alumni Backend is running"
@@ -155,3 +169,4 @@ def delete_spotlight(
     return services.delete_spotlight(
         slide_id
     )
+
