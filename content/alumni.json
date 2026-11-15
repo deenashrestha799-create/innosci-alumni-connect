@@ -132,10 +132,14 @@
     "pageLabel": {
         "home": "Home",
         "register": "Registration",
+        "login": "Login",
+        "forgot-password": "Forgot Password",
+        "edit-profile": "Edit Profile",
         "dashboard": "My Dashboard",
         "directory": "Alumni Directory",
         "mentorship": "Mentorship",
         "jobs": "Job Opportunities",
-        "admin": "Admin Console"
+        "admin": "Admin Console",
+        "alumniCards": "Alumni Records"
     }
 }

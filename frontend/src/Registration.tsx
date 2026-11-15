@@ -35,7 +35,7 @@ export default function RegistrationPage({ setPage }: { setPage: (page: Page) =>
     }
 
     const graduationYear = Number(data.get("graduationYear"));
-    if (Number.isNaN(graduationYear)) {
+    if (!graduationYear) {
       setError("Please select your graduation year / cohort.");
       return;
     }
@@ -47,24 +47,24 @@ export default function RegistrationPage({ setPage }: { setPage: (page: Page) =>
     }
 
     const body = {
-      fullName: data.get("fullName"),
       email: data.get("email"),
-      contactNumber: data.get("contactNumber"),
+      full_name: data.get("fullName"),
+      contact_number: data.get("contactNumber"),
       location: data.get("location"),
-      graduationYear,
+      graduation_year: graduationYear,
       program,
-      jobTitle: data.get("jobTitle"),
-      company: data.get("company"),
-      linkedinUrl: data.get("linkedinUrl"),
-      skills: data.get("skills"),
-      interests: data.get("interests"),
+      job_title: data.get("jobTitle") || null,
+      company: data.get("company") || null,
+      linkedin_url: data.get("linkedinUrl") || null,
+      skills: data.get("skills") || null,
+      interests: data.get("interests") || null,
       password,
       consent: data.get("consent") === "on",
     };
-
+    console.log("Sending:", { ...body, password: "***" });
     setSubmitting(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -75,7 +75,16 @@ export default function RegistrationPage({ setPage }: { setPage: (page: Page) =>
         return;
       }
       if (!res.ok) {
-        setError("Registration failed. Please check your details and try again.");
+        const info = await res.json().catch(() => null);
+        let message = "Registration failed. Please check your details and try again.";
+        if (typeof info?.detail === "string") {
+          message = info.detail;
+        } else if (Array.isArray(info?.detail) && info.detail[0]) {
+          const first = info.detail[0];
+          const field = String(first.loc?.[first.loc.length - 1] ?? "").replace(/_/g, " ");
+          message = `${field}: ${first.msg}`;
+        }
+        setError(message);
         return;
       }
 
