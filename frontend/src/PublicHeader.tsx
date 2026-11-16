@@ -4,13 +4,12 @@ import type { Page } from "./App";
 import { Logo } from "./Picture";
 import { Button } from "./components/ui";
 
-export function PublicHeader({ page, setPage }: { page: Page; setPage: (page: Page) => void }) {
+export function PublicHeader({ page, setPage, signedInPage }: { page: Page; setPage: (page: Page) => void; signedInPage?: Page }) {
   const [open, setOpen] = useState(false);
   const links: { label: string; page: Page }[] = [
     { label: "Home", page: "home" },
     { label: "Directory", page: "directory" },
     { label: "Mentorship", page: "mentorship" },
-    { label: "Jobs", page: "jobs" },
   ];
   const navigate = (destination: Page) => {
     setPage(destination);
@@ -33,7 +32,7 @@ export function PublicHeader({ page, setPage }: { page: Page; setPage: (page: Pa
           ))}
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
-          <Button variant="ghost" onClick={() => navigate("dashboard")}>Login</Button>
+          <Button variant="ghost" onClick={() => navigate(signedInPage ?? "login")}>{signedInPage ? "Dashboard" : "Login"}</Button>
           <Button onClick={() => navigate("register")}>Join the network <ArrowRight className="size-4" /></Button>
         </div>
         <button onClick={() => setOpen(!open)} className="grid size-10 place-items-center rounded-xl bg-slate-100 lg:hidden" aria-label="Open navigation">
@@ -48,7 +47,7 @@ export function PublicHeader({ page, setPage }: { page: Page; setPage: (page: Pa
             </button>
           ))}
           <div className="mt-3 grid grid-cols-2 gap-2">
-            <Button variant="secondary" onClick={() => navigate("dashboard")}>Login</Button>
+            <Button variant="ghost" onClick={() => navigate(signedInPage ?? "login")}>{signedInPage ? "Dashboard" : "Login"}</Button>
             <Button onClick={() => navigate("register")}>Register</Button>
           </div>
         </div>

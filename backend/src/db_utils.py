@@ -1,4 +1,4 @@
-from backend import database
+import database
 
 
 def get_db_connection():
