@@ -263,13 +263,13 @@ export function MentorshipPage({
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
+              {/* <Button
                 className="bg-white text-navy-950 hover:bg-slate-100"
                 onClick={() => setTab("Find a mentor")}
               >
                 <Search className="size-4" />
                 Find a mentor
-              </Button>
+              </Button>*/}
 
               <Button
                 variant="secondary"
@@ -442,7 +442,7 @@ export function MentorshipPage({
               No request history available
             </h2>
             <p className="mt-2 text-sm text-slate-500">
-              Your mentorship requests and their statuses will appear here
+               <b> The feature is coming soon ! </b>Your mentorship requests and their statuses will appear here
               once request management is connected.
             </p>
           </div>
