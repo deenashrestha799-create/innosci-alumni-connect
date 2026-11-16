@@ -15,8 +15,12 @@ export type Page =
   | "edit-profile"
   | "mentorship"
   | "alumniCards"
+  | "jobs"
+  | "career"
   | "admin";
 export type DirectoryScope = "all" | "program" | "cohort";
+
+
 export type Alumni = {
   name: string;
   year: string;
@@ -36,6 +40,7 @@ import { MentorshipPage } from "./MentorshipPage";
 import { HomePage } from "./HomePage";
 import { PublicHeader } from "./PublicHeader";
 import { DirectoryPage } from "./DirectoryPage";
+import CareerAssistant from "./features/career/CareerAssistant";
 
 function Footer({ setPage }: { setPage: (page: Page) => void }) {
   return (
@@ -53,6 +58,7 @@ export default function App() {
 
   const [directoryScope, setDirectoryScope] = useState<DirectoryScope>("all");
 
+  // const [page, setPageState] = useState<Page>("career");
   const setPage = (next: Page) => {
     setDirectoryScope("all");
     setPageState(next);
@@ -108,7 +114,7 @@ export default function App() {
     current = me.role === "ADMIN" ? "admin" : "dashboard";
   }
 
-  const publicPage = useMemo(() => ["home", "register", "login", "forgot-password"].includes(current),[current]);
+  const publicPage = useMemo(() => ["home", "register", "login", "forgot-password", "career"].includes(current),[current]);
 
   if (checking) return <div className="min-h-screen bg-white" />;
 
@@ -143,6 +149,7 @@ export default function App() {
         {current === "directory" && <DirectoryPage setPage={setPage} initialScope={directoryScope} />}
         {current === "mentorship" && <MentorshipPage setPage={setPage} />}
         {current === "admin" && <AdminPage setPage={setPage} />}
+        {current === "career" && <CareerAssistant setPage={setPage} />}
       </div>
     </AuthContext.Provider>
   );
