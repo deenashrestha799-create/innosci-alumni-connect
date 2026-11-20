@@ -7,8 +7,15 @@ interface Announcement {
   title: string;
   message: string;
   created_at: string;
+  expires_at: string | null;
+  is_active: number | boolean;
 }
-
+// function toLocalInput(iso: string | null) {
+//   if (!iso) return "";
+//   const d = new Date(iso);
+//   const p = (n: number) => String(n).padStart(2, "0");
+//   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+// }
 export function AnnouncementsPanel() {
   const [items, setItems] = useState<Announcement[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -16,9 +23,10 @@ export function AnnouncementsPanel() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-
+  const [expiresAt, setExpiresAt] = useState("");
+  
   async function load() {
-    const res = await apiFetch("/announcements");
+    const res = await apiFetch("/admin/announcements");
     if (res.ok) setItems((await res.json()).announcements);
   }
 
@@ -29,6 +37,7 @@ export function AnnouncementsPanel() {
     setTitle("");
     setMessage("");
     setError("");
+    setExpiresAt("");
   }
 
   async function save() {
@@ -42,7 +51,7 @@ export function AnnouncementsPanel() {
       editingId ? `/admin/announcements/${editingId}` : "/admin/announcements",
       {
         method: editingId ? "PUT" : "POST",
-        body: JSON.stringify({ title: title.trim(), message: message.trim() }),
+        body: JSON.stringify({ title: title.trim(), message: message.trim(), expires_at: expiresAt || null }),
       }
     );
     setSaving(false);
@@ -81,6 +90,15 @@ export function AnnouncementsPanel() {
           maxLength={2000}
           className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-teal-500"
         />
+        <label className="block text-xs font-semibold text-slate-500">
+          Show until (optional, leave empty to keep it visible)
+          <input
+            type="date"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-teal-500"
+          />
+        </label>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex gap-2">
           <button
@@ -107,10 +125,21 @@ export function AnnouncementsPanel() {
               <div>
                 <div className="font-bold text-slate-900">{a.title}</div>
                 <div className="mt-1 text-xs text-slate-400">{new Date(a.created_at).toLocaleDateString()}</div>
+                {a.expires_at && (() => {
+                  const expired = a.expires_at < new Date().toLocaleDateString("en-CA");
+                  return (
+                    <div className={`mt-1 text-xs font-semibold ${expired ? "text-red-500" : "text-teal-600"}`}>
+                      {expired ? "Expired" : "Visible until"} {new Date(a.expires_at + "T00:00:00").toLocaleDateString()}
+                    </div>
+                  );
+                })()}
+                {!a.is_active && (
+                  <div className="mt-1 text-xs font-semibold text-slate-400">Inactive (hidden from homepage)</div>
+                )}
               </div>
               <div className="flex gap-1">
                 <button
-                  onClick={() => { setEditingId(a.announcement_id); setTitle(a.title); setMessage(a.message); }}
+                  onClick={() => { setEditingId(a.announcement_id); setTitle(a.title); setMessage(a.message); setExpiresAt(a.expires_at ?? "") ;}}
                   className="grid size-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
                   aria-label="Edit"
                 >

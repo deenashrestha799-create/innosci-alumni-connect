@@ -10,6 +10,7 @@ import cognito_admin
 import repository
 
 from schemas import UserCreate, MentorProfileCreate 
+
 def register_user(user: UserCreate):
     print("Service: Register User")
 
@@ -595,31 +596,6 @@ def get_admin_stats():
             "total": item["total"]} for item in repository.get_registration_stats()]
     }
 
-def create_announcement(data, admin_email):
-    announcement_id = repository.create_announcement({
-        "title": data["title"],
-        "message": data["message"],
-        "created_by": admin_email
-    })
-
-    return {
-        "message": "Announcement published successfully",
-        "announcement_id": announcement_id
-    }
-
-def get_announcements():
-    announcements = repository.get_announcements()
-
-    return {
-        "announcements": [
-            {
-                **item,
-                "created_at": item["created_at"].isoformat()
-            }
-            for item in announcements
-        ]
-    }
-
 def get_active_mentors():
     mentors = repository.get_active_mentors()
 
@@ -630,12 +606,40 @@ def get_active_mentors():
         mentor["is_active"] = True
 
     return {"mentors": mentors}
+def _announcement_out(item):
+    return {
+        **item,
+        "created_at": item["created_at"].isoformat(),
+        "expires_at": item["expires_at"].isoformat() if item.get("expires_at") else None,
+    }
+
+
+def create_announcement(data, admin_email):
+    announcement_id = repository.create_announcement({
+        "title": data["title"],
+        "message": data["message"],
+        "created_by": admin_email,
+        "expires_at": data.get("expires_at"),
+    })
+    return {"message": "Announcement published successfully", "announcement_id": announcement_id}
+
 
 def update_announcement(announcement_id, data):
-    if repository.update_announcement(announcement_id, data) == 0:
+    rows = repository.update_announcement(announcement_id, {
+        "title": data["title"],
+        "message": data["message"],
+        "expires_at": data.get("expires_at"),
+    })
+    if rows == 0:
         raise HTTPException(status_code=404, detail="Announcement not found")
     return {"message": "Announcement updated successfully"}
 
+def get_announcements():
+    return {"announcements": [_announcement_out(i) for i in repository.get_announcements()]}
+
+
+def get_admin_announcements():
+    return {"announcements": [_announcement_out(i) for i in repository.get_all_announcements()]}
 
 def delete_announcement(announcement_id):
     if repository.delete_announcement(announcement_id) == 0:

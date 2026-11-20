@@ -14,6 +14,7 @@ import {
   UserCheck,
   Users,
   X,
+  RefreshCw,
 } from "lucide-react";
 
 import { apiFetch } from "./api";
@@ -42,6 +43,7 @@ export function AdminPage({ setPage }: { setPage: (page: Page) => void }) {
   const [notice, setNotice] = useState("");
   const [adminStats, setAdminStats] = useState<any>(null);
   const [section, setSection] = useState("overview");
+  const [refreshing, setRefreshing] = useState(false);
   const loadAdminStats = async () => {
     try {
       const res = await apiFetch("/admin/stats");
@@ -113,6 +115,11 @@ export function AdminPage({ setPage }: { setPage: (page: Page) => void }) {
       console.error(error);
       setNotice("Could not load pending alumni.");
     }
+  };
+  const refreshAll = async () => {
+    setRefreshing(true);
+    await Promise.all([loadPendingUsers(), loadAdminStats()]);
+    setRefreshing(false);
   };
   const stats = [
     {
@@ -214,10 +221,16 @@ export function AdminPage({ setPage }: { setPage: (page: Page) => void }) {
                   })}
                 </div>
               </div>
-              <Button onClick={() => setAnnouncementModal(true)}>
-                <Plus className="size-4" />
-                Create announcement
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="secondary" onClick={refreshAll} disabled={refreshing}>
+                  <RefreshCw className={`size-4 ${refreshing ? "animate-spin" : ""}`} />
+                  {refreshing ? "Refreshing..." : "Refresh"}
+                </Button>
+                <Button onClick={() => setAnnouncementModal(true)}>
+                  <Plus className="size-4" />
+                  Create announcement
+                </Button>
+              </div>
             </div>
 
             <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
