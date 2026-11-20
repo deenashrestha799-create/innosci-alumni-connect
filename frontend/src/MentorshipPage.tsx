@@ -5,7 +5,6 @@ import {
   Cloud,
   Code2,
   HeartHandshake,
-  Search,
   ShieldCheck,
   Target,
   TrendingUp,
@@ -423,8 +422,7 @@ export function MentorshipPage({
                         Request mentorship
                       </Button>
                       <p className="mt-2 text-center text-xs text-slate-400">
-                        Mentorship requests will be enabled when request
-                        management is connected.
+                        Mentorship requests will be enabled <b style={{ fontSize: "180%" }}>soon</b> once the request management feature is connected.
                       </p>
                     </div>
                   );
@@ -439,10 +437,10 @@ export function MentorshipPage({
           <div className="mt-7 rounded-2xl border border-slate-200 bg-white p-8 text-center">
             <Clock3 className="mx-auto size-10 text-slate-300" />
             <h2 className="mt-4 text-lg font-bold text-slate-950">
-              No request history available
+              The feature is coming soon !
             </h2>
             <p className="mt-2 text-sm text-slate-500">
-               <b> The feature is coming soon ! </b>Your mentorship requests and their statuses will appear here
+               <p>Your mentorship requests and their statuses will appear here</p>
               once request management is connected.
             </p>
           </div>

@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, RefreshCw, X } from "lucide-react";
 import { apiFetch } from "./api";
 import { Button, Pill } from "./components/ui";
+import { LocationSelect } from "./LocationSelect";
+import { PhoneInput } from "./PhoneInput";
 
+const thisYear = new Date().getFullYear();
+const cohortYears = Array.from({ length: thisYear - 2009 }, (_, i) => String(thisYear - i));
+const programmes = ["Cloud Computing", "Software Development", "Data Analytics", "Project Management", "Cybersecurity"];
 interface UserRow {
   user_id: string;
   full_name: string;
@@ -26,10 +31,18 @@ export function AdminRecords() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [saving, setSaving] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
   async function load() {
-    const res = await apiFetch("/admin/users");
-    if (res.ok) setUsers((await res.json()).users);
+    setRefreshing(true);
+    try {
+      const res = await apiFetch("/admin/users");
+      if (res.ok) setUsers((await res.json()).users);
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   useEffect(() => { load(); }, []);
@@ -50,8 +63,8 @@ export function AdminRecords() {
         email: form.email.trim(),
         role: form.role,
         password: form.password,
-        contact_number: form.contact_number || null,
-        location: form.location || null,
+        contact_number: phone || null,
+        location: location || null,
         graduation_year: form.graduation_year ? Number(form.graduation_year) : null,
         program: form.program || null,
         job_title: form.job_title || null,
@@ -85,9 +98,15 @@ export function AdminRecords() {
           <h2 className="font-bold text-slate-950">Alumni records</h2>
           <p className="mt-1 text-xs text-slate-400">{users.length} registered users</p>
         </div>
-        <Button onClick={() => { setError(""); setOpen(true); }}>
-          <Plus className="size-4" /> Add user
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={load} disabled={refreshing}>
+            <RefreshCw className={`size-4 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </Button>
+          <Button onClick={() => { setError(""); setPhone(""); setLocation(""); setOpen(true); }}>
+            <Plus className="size-4" /> Add user
+          </Button>
+        </div>
       </div>
 
       {notice && <p className="bg-teal-50 px-5 py-3 text-sm text-teal-700">{notice}</p>}
@@ -139,10 +158,18 @@ export function AdminRecords() {
               <input className={input} placeholder="Full name *" value={form.full_name} onChange={(e) => set("full_name", e.target.value)} />
               <input className={input} placeholder="Email *" value={form.email} onChange={(e) => set("email", e.target.value)} />
               <input className={`${input} sm:col-span-2`} type="password" placeholder="Initial password * (min 8)" value={form.password} onChange={(e) => set("password", e.target.value)} />
-              <input className={input} placeholder="Contact number" value={form.contact_number} onChange={(e) => set("contact_number", e.target.value)} />
-              <input className={input} placeholder="Location (City, Country)" value={form.location} onChange={(e) => set("location", e.target.value)} />
-              <input className={input} placeholder="Graduation year" value={form.graduation_year} onChange={(e) => set("graduation_year", e.target.value)} />
-              <input className={input} placeholder="Programme" value={form.program} onChange={(e) => set("program", e.target.value)} />
+              <div className="sm:col-span-2">
+                <PhoneInput onChange={setPhone} />
+              </div>
+              <LocationSelect onChange={setLocation} />
+              <select className={input} value={form.graduation_year} onChange={(e) => set("graduation_year", e.target.value)}>
+                <option value="">Graduation year</option>
+                {cohortYears.map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
+              <select className={input} value={form.program} onChange={(e) => set("program", e.target.value)}>
+                <option value="">Programme</option>
+                {programmes.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
               <input className={input} placeholder="Job title" value={form.job_title} onChange={(e) => set("job_title", e.target.value)} />
               <input className={input} placeholder="Company" value={form.company} onChange={(e) => set("company", e.target.value)} />
             </div>

@@ -1,5 +1,8 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from typing import Optional, Literal
+from datetime import date
+
+import re
 
 class UserCreate(BaseModel):
 
@@ -23,7 +26,15 @@ class UserCreate(BaseModel):
         if not value:
             raise ValueError("Consent is required to register.")
         return value
-
+    
+    @field_validator("contact_number")
+    @classmethod
+    def phone_format(cls, value):
+        import re
+        if not re.fullmatch(r"\+[1-9]\d{6,14}", value):
+            raise ValueError("Enter the number with country code, e.g. +4791234567.")
+        return value
+    
 class UserResponse(BaseModel):
 
     user_id: str
@@ -110,6 +121,7 @@ class MentorProfileResponse(BaseModel):
 class AnnouncementCreate(BaseModel):
     title: str = Field(min_length=3, max_length=200)
     message: str = Field(min_length=3, max_length=2000)
+    expires_at: date | None = None
 
 class AdminUserCreate(BaseModel):
     email: EmailStr

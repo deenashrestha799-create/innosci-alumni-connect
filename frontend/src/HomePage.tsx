@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Sparkles, TrendingUp, Users, HeartHandshake, UserRoundPlus, ChevronRight,UserCheck, UserPlus, LogIn } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Users, HeartHandshake, UserRoundPlus, ChevronRight,UserCheck } from "lucide-react";
 
 import { Avatar } from "./Picture";
-import { Button, Pill } from "./components/ui";
+import { Button, } from "./components/ui";
 
 import type { Page } from "./App";
 import data from "../../content/alumni.json";
@@ -272,8 +272,6 @@ export function HomePage({ setPage }: { setPage: (page: Page) => void }) {
             <div className="absolute -bottom-7 right-0 w-64 -rotate-2 rounded-2xl bg-white p-5 text-slate-950 shadow-2xl">
               <div className="mt-4 text-3xl font-bold">{stats?.mentors ?? 0}</div>
               <div className="mt-1 text-xs leading-5 text-slate-500">alumni are currently offering mentorship.</div>
-              <div className="mt-4 text-3xl font-bold">86%</div>
-              <div className="mt-1 text-xs leading-5 text-slate-500">of members made a meaningful professional connection this month.</div>
             </div>
           </div>
         </div>

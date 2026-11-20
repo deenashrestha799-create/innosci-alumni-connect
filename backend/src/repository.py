@@ -796,44 +796,6 @@ def get_registration_stats():
     finally:
         connection.close()
 
-def create_announcement(data):
-    connection = db_utils.get_db_connection()
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                INSERT INTO announcements
-                (title, message, created_by, is_active)
-                VALUES (%s, %s, %s, TRUE)
-            """, (
-                data["title"],
-                data["message"],
-                data["created_by"]
-            ))
-
-            connection.commit()
-
-            return cursor.lastrowid
-
-    finally:
-        connection.close()
-
-def get_announcements():
-    connection = db_utils.get_db_connection()
-
-    try:
-        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            cursor.execute("""
-                SELECT *
-                FROM announcements
-                WHERE is_active = TRUE
-                ORDER BY created_at DESC
-            """)
-
-            return cursor.fetchall()
-
-    finally:
-        connection.close()
-
 def get_active_mentors():
     connection = db_utils.get_db_connection()
 
@@ -864,33 +826,6 @@ def get_active_mentors():
 
             return cursor.fetchall()
 
-    finally:
-        connection.close()
-
-def update_announcement(announcement_id, data):
-    connection = db_utils.get_db_connection()
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "UPDATE announcements SET title = %s, message = %s WHERE announcement_id = %s",
-                (data["title"], data["message"], announcement_id),
-            )
-            connection.commit()
-            return cursor.rowcount
-    finally:
-        connection.close()
-
-
-def delete_announcement(announcement_id):
-    connection = db_utils.get_db_connection()
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "DELETE FROM announcements WHERE announcement_id = %s",
-                (announcement_id,),
-            )
-            connection.commit()
-            return cursor.rowcount
     finally:
         connection.close()
 
@@ -931,6 +866,83 @@ def get_home_data():
         latest = cursor.fetchone()
 
         return counts, locations, spotlight, latest
+    finally:
+        connection.close()
+
+def create_announcement(data):
+    connection = db_utils.get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO announcements
+                (title, message, created_by, expires_at, is_active)
+                VALUES (%s, %s, %s, %s, TRUE)
+            """, (data["title"], data["message"], data["created_by"], data["expires_at"]))
+            connection.commit()
+            return cursor.lastrowid
+    finally:
+        connection.close()
+
+
+def update_announcement(announcement_id, data):
+    connection = db_utils.get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE announcements
+                SET title = %s, message = %s, expires_at = %s
+                WHERE announcement_id = %s
+                """,
+                (data["title"], data["message"], data["expires_at"], announcement_id),
+            )
+            connection.commit()
+            return cursor.rowcount
+    finally:
+        connection.close()
+
+
+def get_announcements():
+    """Public list: still active, not expired, newest 5."""
+    connection = db_utils.get_db_connection()
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT *
+                FROM announcements
+                WHERE is_active = TRUE
+                    AND (expires_at IS NULL OR expires_at >= CURDATE())
+                ORDER BY created_at DESC
+                LIMIT 5
+            """)
+            return cursor.fetchall()
+    finally:
+        connection.close()
+
+
+def get_all_announcements():
+    """Admin list: every row, including inactive and expired."""
+    connection = db_utils.get_db_connection()
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            cursor.execute("""
+                SELECT * FROM announcements
+                ORDER BY created_at DESC
+            """)
+            return cursor.fetchall()
+    finally:
+        connection.close()
+
+def delete_announcement(announcement_id):
+    connection = db_utils.get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM announcements WHERE announcement_id = %s",
+                (announcement_id,),
+            )
+            connection.commit()
+            return cursor.rowcount
     finally:
         connection.close()
 # ALTER TABLE users

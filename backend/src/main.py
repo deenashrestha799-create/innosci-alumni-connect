@@ -343,3 +343,8 @@ def remove_announcement(
 @app.get("/public/home")
 def public_home():
     return services.get_public_home()
+
+@app.get("/admin/announcements")
+def admin_announcements(current_user=Depends(get_current_user)):
+    require_admin(current_user)
+    return services.get_admin_announcements()

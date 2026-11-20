@@ -97,7 +97,9 @@ export function DirectoryPage({ setPage, initialScope = "all" }: { setPage: (pag
             <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">Find your people.</h1>
             <p className="mt-2 text-sm text-slate-500">Search by name, skills, programme or the work alumni do today.</p>
           </div>
-          <Button><UserRoundPlus className="size-4" /> My connection requests <Pill tone="slate">3</Pill></Button>
+          <Button disabled><UserRoundPlus className="size-4" /> My connection requests 
+          {/* <Pill tone="slate">3</Pill> */}
+          </Button>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">

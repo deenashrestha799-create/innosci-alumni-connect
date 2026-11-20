@@ -10,18 +10,22 @@ import {
   Link,
   LockKeyhole,
   Mail,
-  MapPin,
   Upload,
 } from "lucide-react";
 import { Field, SelectField } from "./components/Fields";
 import { Button, Pill } from "./components/ui";
 import type { Page } from "./App";
+import { LocationSelect } from "./LocationSelect";
+import { PhoneInput } from "./PhoneInput";
 
 export default function RegistrationPage({ setPage }: { setPage: (page: Page) => void }) {
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const thisYear = new Date().getFullYear();
+  const cohortYears = Array.from({ length: thisYear - 2009 }, (_, i) => String(thisYear - i));
+  const [location, setLocation] = useState("");
+  const [phone, setPhone] = useState("");
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
@@ -46,11 +50,20 @@ export default function RegistrationPage({ setPage }: { setPage: (page: Page) =>
       return;
     }
 
+    if (!location) {
+      setError("Please select your country and city.");
+      return;
+    }
+
+    if (!phone) {
+      setError("Please enter a valid contact number for the selected country code.");
+      return;
+    }
     const body = {
       email: data.get("email"),
       full_name: data.get("fullName"),
-      contact_number: data.get("contactNumber"),
-      location: data.get("location"),
+      contact_number: phone,
+      location,
       graduation_year: graduationYear,
       program,
       job_title: data.get("jobTitle") || null,
@@ -130,9 +143,9 @@ export default function RegistrationPage({ setPage }: { setPage: (page: Page) =>
             <div className="grid gap-5 md:grid-cols-2">
               <Field label="Full Name" name="fullName" placeholder="e.g. Amara Okafor" required />
               <Field label="Email Address" name="email" placeholder="you@email.com" type="email" icon={Mail} required />
-              <Field label="Contact Number" name="contactNumber" placeholder="+234 000 000 0000" required />
-              <Field label="Location" name="location" placeholder="City, Country" icon={MapPin} required />
-              <SelectField label="Graduation Year / Cohort" name="graduationYear" options={["Select your cohort", "2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018"]} />
+              <PhoneInput onChange={setPhone} />
+              <LocationSelect onChange={setLocation} />
+              <SelectField label="Graduation Year / Cohort" name="graduationYear" options={["Select your cohort", ...cohortYears]} />
               <SelectField label="Programme Completed" name="program" options={["Select programme", "Cloud Computing", "Software Development", "Data Analytics", "Project Management", "Cybersecurity"]} />
             </div>
           </div>
